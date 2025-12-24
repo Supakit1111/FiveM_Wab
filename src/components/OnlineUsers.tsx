@@ -70,21 +70,38 @@ export function OnlineUsers({ className }: { className?: string }) {
   const remainder = Math.max(0, users.length - MAX_SHOW);
 
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
-      <div className="flex -space-x-3 rtl:space-x-reverse">
+    <div
+      className={`flex items-center gap-3 rounded-full border border-white/10 bg-slate-950/60 p-1.5 pl-4 backdrop-blur-md shadow-xl shadow-black/20 ${className}`}
+    >
+      {/* Live Indicator */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <span className="text-[10px] font-bold tracking-widest text-emerald-400">
+          LIVE
+        </span>
+      </div>
+
+      {/* Divider */}
+      <div className="h-4 w-px bg-white/10" />
+
+      {/* User Avatars */}
+      <div className="flex -space-x-2">
         <AnimatePresence mode="popLayout">
           {displayUsers.map((u) => (
             <motion.div
               key={u.id}
               layout
-              initial={{ opacity: 0, scale: 0.5, x: -20 }}
+              initial={{ opacity: 0, scale: 0.5, x: -10 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0, x: -20 }}
+              exit={{ opacity: 0, scale: 0, x: -10 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
               className="relative group"
             >
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-950 text-xs font-bold text-white shadow-sm transition-transform hover:z-10 hover:scale-110 ${
+                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-slate-900 text-[10px] font-bold text-white shadow-sm transition-transform hover:z-10 hover:scale-110 ${
                   u.role === "ADMIN"
                     ? "bg-gradient-to-br from-rose-500 to-red-600"
                     : u.id.startsWith("visitor")
@@ -94,14 +111,13 @@ export function OnlineUsers({ className }: { className?: string }) {
                 title={u.name}
               >
                 {u.name.charAt(0).toUpperCase()}
-
-                {/* Online Dot */}
-                <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-slate-950" />
               </div>
 
               {/* Tooltip */}
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/80 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none z-20">
-                {u.name}
+              <div className="absolute -bottom-8 left-1/2 z-20 -translate-x-1/2 pointer-events-none opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white shadow-lg border border-white/10">
+                  {u.name}
+                </div>
               </div>
             </motion.div>
           ))}
@@ -111,17 +127,12 @@ export function OnlineUsers({ className }: { className?: string }) {
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-950 bg-slate-800 text-xs font-medium text-slate-300 hover:bg-slate-700"
+            className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-slate-900 bg-slate-800 text-[10px] font-medium text-slate-300 hover:bg-slate-700"
           >
             +{remainder}
           </motion.div>
         )}
       </div>
-
-      {/* Label (Optional) */}
-      {/* <span className="ml-2 text-xs text-slate-500 hidden md:block">
-            Online
-        </span> */}
     </div>
   );
 }
