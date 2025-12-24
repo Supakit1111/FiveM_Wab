@@ -6,7 +6,6 @@ import {
   Package,
   FileText,
   LayoutDashboard,
-  Gamepad2,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -82,22 +81,26 @@ export function AppSidebar() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex items-center gap-3 px-6 py-5 border-b border-slate-800"
+        className="flex flex-col items-center gap-2 px-4 py-4 border-b border-slate-800 text-center"
       >
         <motion.div
-          whileHover={{ rotate: 15, scale: 1.1 }}
-          className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-500/10"
+          whileHover={{ scale: 1.05 }}
+          className="flex w-40 items-center justify-center bg-transparent"
         >
-          <Gamepad2 className="h-6 w-6 text-teal-200" />
+          <img
+            src="/OMG.png"
+            alt="Logo"
+            className="w-full h-auto object-contain"
+          />
         </motion.div>
         <div>
-          <p className="font-bold text-slate-100">GameAdmin</p>
-          <p className="text-xs text-slate-400">ระบบจัดการข้อมูลเกม</p>
+          <p className="font-bold text-base text-slate-100">FiveM Management</p>
+          <p className="text-[10px] text-slate-400">ระบบจัดการข้อมูลเกม</p>
         </div>
       </motion.div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]">
         {menuItems.map((item, index) => {
           if (item.isDivider) {
             return (
