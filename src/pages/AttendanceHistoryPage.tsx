@@ -49,7 +49,7 @@ const itemVariants = {
   visible: {
     y: 0,
     opacity: 1,
-    transition: { type: "spring", stiffness: 100 },
+    transition: { type: "spring" as const, stiffness: 100 },
   },
 };
 
@@ -98,20 +98,21 @@ export default function AttendanceHistoryPage() {
             `/attendance?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
           );
           setLogs(logsRes);
-
         } else {
           // === USER: Load My Data ===
-          
+
           // 1. Setup User Row (Mock row for self)
           if (user) {
-             // เราต้องมั่นใจว่า user object มี id
-             const currentUserId = user.id || 0; 
-             setUsers([{
-                 id: currentUserId, 
-                 inGameName: user.inGameName || "Unknown", 
-                 phoneNumber: user.phoneNumber || "-",
-                 role: user.role
-             }]);
+            // เราต้องมั่นใจว่า user object มี id
+            const currentUserId = user.id || 0;
+            setUsers([
+              {
+                id: currentUserId,
+                inGameName: user.inGameName || "Unknown",
+                phoneNumber: user.phoneNumber || "-",
+                role: user.role,
+              },
+            ]);
           }
 
           // 2. Fetch My Logs
@@ -145,10 +146,10 @@ export default function AttendanceHistoryPage() {
   // --- FIX: Logic การจับคู่ Log ---
   const getLogForUserDate = (userId: number, date: Date) => {
     const key = getDateKey(date);
-    
+
     return logs.find((l) => {
       const logDateKey = getDateKey(new Date(l.checkInTime));
-      
+
       if (isAdmin) {
         // ถ้าเป็น Admin ต้องเช็ค userId ให้ตรงคน
         return l.userId === userId && logDateKey === key;
@@ -201,7 +202,7 @@ export default function AttendanceHistoryPage() {
   return (
     <div className="p-6 md:p-8 space-y-6">
       {/* Header & Controls */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4"
@@ -211,7 +212,9 @@ export default function AttendanceHistoryPage() {
             {isAdmin ? "ตารางสรุปการเช็คชื่อ" : "ประวัติการเช็คชื่อ"}
           </h1>
           <p className="mt-1 text-slate-400">
-            {isAdmin ? "Attendance Sheet (Daily Summary)" : "My Attendance Sheet"}
+            {isAdmin
+              ? "Attendance Sheet (Daily Summary)"
+              : "My Attendance Sheet"}
           </p>
         </div>
 
@@ -274,15 +277,15 @@ export default function AttendanceHistoryPage() {
       {/* Main Table Area */}
       {loading ? (
         <div className="flex flex-col items-center justify-center p-20 gap-4">
-           <div className="w-10 h-10 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-           <p className="text-slate-500 animate-pulse">กำลังโหลดตาราง...</p>
+          <div className="w-10 h-10 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-slate-500 animate-pulse">กำลังโหลดตาราง...</p>
         </div>
       ) : (
-        <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-            className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/40 shadow-xl backdrop-blur-sm"
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+          className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/40 shadow-xl backdrop-blur-sm"
         >
           <div className="overflow-x-auto max-h-[calc(100vh-250px)] custom-scrollbar">
             <table className="w-full text-sm border-collapse">
@@ -291,7 +294,11 @@ export default function AttendanceHistoryPage() {
                   <th className="sticky left-0 z-30 bg-slate-950/95 border-b border-r border-slate-800 px-4 py-4 text-left min-w-[200px] text-slate-300 shadow-[4px_0_24px_-2px_rgba(0,0,0,0.5)]">
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-teal-500" />
-                      <span>{isAdmin ? `รายชื่อ (${filteredUsers.length})` : "ผู้ใช้งาน"}</span>
+                      <span>
+                        {isAdmin
+                          ? `รายชื่อ (${filteredUsers.length})`
+                          : "ผู้ใช้งาน"}
+                      </span>
                     </div>
                   </th>
                   {dates.map((d) => (
@@ -299,7 +306,9 @@ export default function AttendanceHistoryPage() {
                       key={d.toISOString()}
                       className={cn(
                         "border-b border-slate-800 px-2 py-3 text-center min-w-[80px] transition-colors",
-                        getDateKey(d) === getDateKey(new Date()) ? "bg-teal-500/10" : ""
+                        getDateKey(d) === getDateKey(new Date())
+                          ? "bg-teal-500/10"
+                          : ""
                       )}
                     >
                       <div
@@ -329,10 +338,10 @@ export default function AttendanceHistoryPage() {
                       colSpan={dates.length + 1}
                       className="py-20 text-center text-slate-500"
                     >
-                        <div className="flex flex-col items-center gap-2">
-                            <Filter className="w-8 h-8 opacity-20" />
-                            ไม่พบข้อมูล
-                        </div>
+                      <div className="flex flex-col items-center gap-2">
+                        <Filter className="w-8 h-8 opacity-20" />
+                        ไม่พบข้อมูล
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -345,28 +354,37 @@ export default function AttendanceHistoryPage() {
                       {/* Sticky Name Column */}
                       <td className="sticky left-0 z-10 bg-slate-950/95 group-hover:bg-slate-900 border-r border-slate-800 px-4 py-3 font-medium text-slate-200 shadow-[4px_0_24px_-2px_rgba(0,0,0,0.5)] transition-colors">
                         <div className="flex flex-col">
-                           <span className="truncate text-sm group-hover:text-teal-200 transition-colors">{u.inGameName}</span>
-                           <span className="text-[10px] text-slate-500 font-mono">{u.phoneNumber}</span>
+                          <span className="truncate text-sm group-hover:text-teal-200 transition-colors">
+                            {u.inGameName}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            {u.phoneNumber}
+                          </span>
                         </div>
                       </td>
-                      
+
                       {/* Date Columns */}
                       {dates.map((d) => {
                         const log = getLogForUserDate(u.id, d);
-                        const isToday = getDateKey(d) === getDateKey(new Date());
+                        const isToday =
+                          getDateKey(d) === getDateKey(new Date());
                         return (
                           <td
                             key={d.toISOString()}
                             className={cn(
-                                "px-2 py-2 text-center border-l border-slate-800/30",
-                                isToday ? "bg-teal-500/5 group-hover:bg-teal-500/10" : ""
+                              "px-2 py-2 text-center border-l border-slate-800/30",
+                              isToday
+                                ? "bg-teal-500/5 group-hover:bg-teal-500/10"
+                                : ""
                             )}
                           >
                             {log ? (
                               <motion.div
                                 whileHover={{ scale: 1.2, rotate: 10 }}
                                 className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30 shadow-[0_0_10px_-2px_rgba(16,185,129,0.3)] cursor-help"
-                                title={`เวลา: ${new Date(log.checkInTime).toLocaleTimeString("th-TH")}`}
+                                title={`เวลา: ${new Date(
+                                  log.checkInTime
+                                ).toLocaleTimeString("th-TH")}`}
                               >
                                 <UserCheck className="w-4 h-4" />
                               </motion.div>
@@ -382,7 +400,7 @@ export default function AttendanceHistoryPage() {
                   ))
                 )}
               </tbody>
-              
+
               {/* Footer Summary */}
               <tfoot className="bg-slate-900/95 backdrop-blur sticky bottom-0 z-20 border-t border-slate-800 shadow-[0_-4px_24px_-2px_rgba(0,0,0,0.5)]">
                 <tr>
@@ -392,14 +410,15 @@ export default function AttendanceHistoryPage() {
                   {dates.map((d) => {
                     // Count logic that works for both Admin (all users) and User (only self)
                     const present = logs.filter((l) => {
-                         const dateMatch = getDateKey(new Date(l.checkInTime)) === getDateKey(d);
-                         if (isAdmin) {
-                             return dateMatch; // Count all logs for that day
-                         } else {
-                             return dateMatch; // Count my log for that day
-                         }
+                      const dateMatch =
+                        getDateKey(new Date(l.checkInTime)) === getDateKey(d);
+                      if (isAdmin) {
+                        return dateMatch; // Count all logs for that day
+                      } else {
+                        return dateMatch; // Count my log for that day
+                      }
                     }).length;
-                    
+
                     return (
                       <td
                         key={d.toISOString()}
@@ -416,17 +435,18 @@ export default function AttendanceHistoryPage() {
                   </td>
                   {dates.map((d) => {
                     const present = logs.filter((l) => {
-                        const dateMatch = getDateKey(new Date(l.checkInTime)) === getDateKey(d);
-                         if (isAdmin) {
-                             return dateMatch;
-                         } else {
-                             return dateMatch;
-                         }
+                      const dateMatch =
+                        getDateKey(new Date(l.checkInTime)) === getDateKey(d);
+                      if (isAdmin) {
+                        return dateMatch;
+                      } else {
+                        return dateMatch;
+                      }
                     }).length;
-                    
+
                     // Logic: Total displayed users - Present count
                     const absent = filteredUsers.length - present;
-                    
+
                     return (
                       <td
                         key={d.toISOString()}

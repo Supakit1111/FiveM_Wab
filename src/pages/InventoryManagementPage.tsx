@@ -6,9 +6,7 @@ import {
   Trash2,
   X,
   AlertTriangle,
-  ClipboardList,
   History,
-  BarChart3,
   Layers,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

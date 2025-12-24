@@ -1,35 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { ClipboardCheck, Package, PlusCircle, User } from "lucide-react";
+import { ClipboardCheck, Package, PlusCircle } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
 import { apiFetch } from "@/lib/api";
 import { getUser } from "@/lib/auth";
 import { Alert, useAlert } from "@/components/ui/alert";
-
-const features = [
-  {
-    id: 1,
-    function: "เช็คชื่อ (Attendance)",
-    description:
-      "ผู้เล่นกดปุ่ม “เช็คชื่อวันนี้” ระบบบันทึก player_id, วัน/เวลา, และสถานะ “มา” ลง log ป้องกันเช็คซ้ำในวันเดียวกัน",
-    tables: ["Attendance_Log"],
-  },
-  {
-    id: 2,
-    function: "เบิกของ (Withdrawal)",
-    description:
-      "ผู้เล่นเลือกไอเท็มและจำนวน ระบบบันทึกพร้อมเหตุผล หักยอดคงเหลือ และสร้างรายการธุรกรรม",
-    tables: ["Inventory_Transaction_Log", "Inventory"],
-  },
-  {
-    id: 3,
-    function: "ฝากของ (Deposit)",
-    description:
-      "(เสริม) ผู้เล่นสามารถกรอกรายการและจำนวนที่นำเข้าคลัง พร้อมเหตุผล เพื่อเพิ่มยอดคงคลัง",
-    tables: ["Inventory_Transaction_Log", "Inventory"],
-  },
-];
 
 type Item = {
   id: number;

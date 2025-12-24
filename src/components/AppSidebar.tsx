@@ -123,7 +123,7 @@ export function AppSidebar() {
           return (
             <NavLink
               key={item.path}
-              to={item.path}
+              to={item.path || ""}
               className="relative block mb-1"
             >
               {/* Animation Wrapper */}
@@ -149,7 +149,11 @@ export function AppSidebar() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    transition={{
+                      type: "spring" as const,
+                      stiffness: 350,
+                      damping: 30,
+                    }}
                   />
                 )}
 
@@ -164,9 +168,11 @@ export function AppSidebar() {
                   whileHover={{ scale: 1.2 }} // เด้งดึ๋งตอนชี้
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
-                  <item.icon
-                    className={cn("h-5 w-5", isActive && "text-teal-200")}
-                  />
+                  {item.icon && (
+                    <item.icon
+                      className={cn("h-5 w-5", isActive && "text-teal-200")}
+                    />
+                  )}
                 </motion.div>
 
                 <div className="relative z-10 flex flex-col">
