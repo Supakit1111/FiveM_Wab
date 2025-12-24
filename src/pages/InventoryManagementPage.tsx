@@ -6,7 +6,6 @@ import {
   Trash2,
   X,
   AlertTriangle,
-  History,
   Layers,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
