@@ -231,67 +231,75 @@ export default function SelfServicePage() {
         <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5">
           <SectionHeader icon={Package} title="เบิกของ" subtitle="Withdrawal" />
 
-          <div className="flex flex-col gap-3">
-            <label className="text-sm">
-              <div className="mb-1 text-slate-300">ไอเท็ม</div>
-              <select
-                className="w-full rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm outline-none focus:border-teal-500/60"
-                value={withdrawItemId}
-                onChange={(e) => setWithdrawItemId(e.target.value)}
-                disabled={itemsLoading}
-              >
-                {itemOptions.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+          {!isAdmin ? (
+            <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300">
+              เฉพาะ Admin เท่านั้นที่เบิกของได้
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <label className="text-sm">
+                <div className="mb-1 text-slate-300">ไอเท็ม</div>
+                <select
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm outline-none focus:border-teal-500/60"
+                  value={withdrawItemId}
+                  onChange={(e) => setWithdrawItemId(e.target.value)}
+                  disabled={itemsLoading}
+                >
+                  {itemOptions.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            <label className="text-sm">
-              <div className="mb-1 text-slate-300">จำนวน</div>
-              <input
-                type="number"
-                min={1}
-                className="w-full rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm outline-none focus:border-teal-500/60"
-                value={withdrawQty}
-                onChange={(e) => setWithdrawQty(Number(e.target.value))}
-              />
-            </label>
+              <label className="text-sm">
+                <div className="mb-1 text-slate-300">จำนวน</div>
+                <input
+                  type="number"
+                  min={1}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm outline-none focus:border-teal-500/60"
+                  value={withdrawQty}
+                  onChange={(e) => setWithdrawQty(Number(e.target.value))}
+                />
+              </label>
 
-            <label className="text-sm">
-              <div className="mb-1 text-slate-300">เหตุผล (ไม่บังคับ)</div>
-              <input
-                className="w-full rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm outline-none focus:border-teal-500/60"
-                value={withdrawReason}
-                onChange={(e) => setWithdrawReason(e.target.value)}
-                placeholder="เช่น ใช้งานกิจกรรม..."
-              />
-            </label>
+              <label className="text-sm">
+                <div className="mb-1 text-slate-300">เหตุผล (ไม่บังคับ)</div>
+                <input
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm outline-none focus:border-teal-500/60"
+                  value={withdrawReason}
+                  onChange={(e) => setWithdrawReason(e.target.value)}
+                  placeholder="เช่น ใช้งานกิจกรรม..."
+                />
+              </label>
 
-            <button
-              className="mt-1 w-full rounded-xl bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-500 disabled:opacity-60"
-              disabled={withdrawLoading || itemsLoading}
-              onClick={() => {
-                const item = items.find((i) => String(i.id) === withdrawItemId);
-                if (!item) {
+              <button
+                className="mt-1 w-full rounded-xl bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-500 disabled:opacity-60"
+                disabled={withdrawLoading || itemsLoading}
+                onClick={() => {
+                  const item = items.find(
+                    (i) => String(i.id) === withdrawItemId
+                  );
                   if (!item) {
-                    showError("ไม่พบไอเท็ม", "กรุณาเลือกไอเท็มที่ต้องการ");
+                    if (!item) {
+                      showError("ไม่พบไอเท็ม", "กรุณาเลือกไอเท็มที่ต้องการ");
+                      return;
+                    }
                     return;
                   }
-                  return;
-                }
-                setConfirmAction({
-                  type: "withdraw",
-                  item,
-                  qty: withdrawQty,
-                  reason: withdrawReason || undefined,
-                });
-              }}
-            >
-              {withdrawLoading ? "กำลังทำรายการ..." : "ยืนยันการเบิก"}
-            </button>
-          </div>
+                  setConfirmAction({
+                    type: "withdraw",
+                    item,
+                    qty: withdrawQty,
+                    reason: withdrawReason || undefined,
+                  });
+                }}
+              >
+                {withdrawLoading ? "กำลังทำรายการ..." : "ยืนยันการเบิก"}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5">
