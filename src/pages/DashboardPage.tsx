@@ -200,7 +200,91 @@ const FormatAction = ({ action }: { action: string }) => {
     }
   }
 
-  return <span className="text-slate-300">{action}</span>;
+  // --- NEW: Shortened Logs ---
+
+  // Login
+  if (action.startsWith("Login:")) {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="outline"
+          className="border-teal-500/30 text-teal-400 bg-teal-500/10"
+        >
+          Login
+        </Badge>
+        <span className="text-slate-300">เข้าสู่ระบบสำเร็จ</span>
+      </span>
+    );
+  }
+
+  // Create Announcement
+  if (action.startsWith("Create announcement")) {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="outline"
+          className="border-amber-500/30 text-amber-400 bg-amber-500/10"
+        >
+          ประกาศ
+        </Badge>
+        <span className="text-slate-300">สร้างประกาศใหม่</span>
+      </span>
+    );
+  }
+
+  // Update Announcement
+  if (action.startsWith("Update announcement")) {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="outline"
+          className="border-amber-500/30 text-amber-400 bg-amber-500/10"
+        >
+          ประกาศ
+        </Badge>
+        <span className="text-slate-300">แก้ไขประกาศ</span>
+      </span>
+    );
+  }
+
+  // Delete Announcement
+  if (action.startsWith("Delete announcement")) {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="destructive"
+          className="border-rose-500/30 text-rose-400 bg-rose-500/10"
+        >
+          ประกาศ
+        </Badge>
+        <span className="text-slate-300">ลบประกาศ</span>
+      </span>
+    );
+  }
+
+  // Delete User
+  if (action.startsWith("Delete user")) {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="destructive"
+          className="border-rose-500/30 text-rose-400 bg-rose-500/10"
+        >
+          Admin
+        </Badge>
+        <span className="text-slate-300">ลบสมาชิกออกจากระบบ</span>
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="text-slate-300 truncate max-w-[300px] block"
+      title={action}
+    >
+      {action}
+    </span>
+  );
 };
 
 // --- Main Component ---
@@ -211,6 +295,7 @@ export default function DashboardPage() {
 
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [annLoading, setAnnLoading] = useState(true);
+  const [showAllAnnouncements, setShowAllAnnouncements] = useState(false);
 
   const [checkinData, setCheckinData] = useState<CheckinUser[]>([]);
   const [checkinLoading, setCheckinLoading] = useState(true);
@@ -457,8 +542,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Column: Featured Announcement (Full Height) */}
-        <motion.div variants={itemVariants} className="lg:col-span-1 h-full">
-          <div className="rounded-2xl border border-teal-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-teal-900/20 p-6 relative overflow-hidden group shadow-lg h-full flex flex-col">
+        <motion.div
+          variants={itemVariants}
+          className="lg:col-span-1 h-full"
+          onClick={() => setShowAllAnnouncements(true)}
+        >
+          <div className="rounded-2xl border border-teal-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-teal-900/20 p-6 relative overflow-hidden group shadow-lg h-full flex flex-col cursor-pointer hover:border-teal-500/50 transition-all">
             {/* Background Glow */}
             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-teal-500/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-teal-500/20 transition-all duration-700"></div>
 
@@ -754,6 +843,82 @@ export default function DashboardPage() {
           </motion.div>
         )}
       </motion.div>
+
+      {/* Full Screen Announcement Modal */}
+      <AnimatePresence>
+        {showAllAnnouncements && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setShowAllAnnouncements(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-3xl max-h-[80vh] flex flex-col rounded-2xl border border-teal-500/30 bg-slate-950 shadow-2xl relative overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Megaphone className="h-6 w-6 text-teal-400" />
+                  <h2 className="text-xl font-bold text-slate-100">
+                    ประกาศทั้งหมด
+                  </h2>
+                </div>
+                <button
+                  onClick={() => setShowAllAnnouncements(false)}
+                  className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                >
+                  <div className="sr-only">Close</div>
+                  <XCircle className="h-6 w-6" />
+                </button>
+              </div>
+
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                {announcements.length === 0 ? (
+                  <div className="text-center py-12 text-slate-500">
+                    ไม่มีประกาศ
+                  </div>
+                ) : (
+                  announcements.map((ann) => (
+                    <motion.div
+                      key={ann.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="p-4 rounded-xl border border-slate-800 bg-slate-900/30 hover:bg-slate-900/50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-4 mb-2">
+                        <h3 className="text-lg font-bold text-slate-200 leading-snug">
+                          {ann.title}
+                        </h3>
+                        {ann.priority === "URGENT" && (
+                          <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-600/20 text-rose-400 border border-rose-600/30">
+                            URGENT
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 mb-3 text-xs text-slate-500">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {formatDate(ann.createdAt)}
+                      </div>
+
+                      <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                        {ann.content}
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

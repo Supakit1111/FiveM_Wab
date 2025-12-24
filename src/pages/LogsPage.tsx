@@ -34,6 +34,90 @@ function formatDateTime(input: string): string {
   return d.toLocaleString("th-TH");
 }
 
+// --- Helper Component for formatting log details ---
+const FormatLogDetails = ({ details }: { details: string }) => {
+  // Login
+  if (details === "เข้าสู่ระบบ") {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="outline"
+          className="border-teal-500/30 text-teal-400 bg-teal-500/10"
+        >
+          Login
+        </Badge>
+        <span className="text-slate-300">เข้าสู่ระบบสำเร็จ</span>
+      </span>
+    );
+  }
+
+  // Create Announcement
+  if (details.startsWith("Create announcement")) {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="outline"
+          className="border-amber-500/30 text-amber-400 bg-amber-500/10"
+        >
+          ประกาศ
+        </Badge>
+        <span className="text-slate-300">สร้างประกาศใหม่</span>
+      </span>
+    );
+  }
+
+  // Update Announcement
+  if (details.startsWith("Update announcement")) {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="outline"
+          className="border-amber-500/30 text-amber-400 bg-amber-500/10"
+        >
+          ประกาศ
+        </Badge>
+        <span className="text-slate-300">แก้ไขประกาศ</span>
+      </span>
+    );
+  }
+
+  // Delete Announcement
+  if (details.startsWith("Delete announcement")) {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="destructive"
+          className="border-rose-500/30 text-rose-400 bg-rose-500/10"
+        >
+          ประกาศ
+        </Badge>
+        <span className="text-slate-300">ลบประกาศ</span>
+      </span>
+    );
+  }
+
+  // Delete User
+  if (details.startsWith("Delete user")) {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="destructive"
+          className="border-rose-500/30 text-rose-400 bg-rose-500/10"
+        >
+          Admin
+        </Badge>
+        <span className="text-slate-300">ลบสมาชิกออกจากระบบ</span>
+      </span>
+    );
+  }
+
+  return (
+    <span className="text-slate-200" title={details}>
+      {details}
+    </span>
+  );
+};
+
 export default function LogsPage() {
   const user = getUser();
   const isAdmin = user?.role === "ADMIN";
@@ -281,7 +365,7 @@ export default function LogsPage() {
               },
               {
                 header: "รายละเอียด",
-                accessor: "details",
+                accessor: (row) => <FormatLogDetails details={row.details} />,
                 className: "min-w-[360px] text-slate-200",
               },
               {

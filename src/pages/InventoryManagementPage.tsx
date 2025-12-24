@@ -182,7 +182,7 @@ export default function InventoryManagementPage() {
           จัดการ Stock
         </button>
 
-        <button
+        {/* <button
           onClick={() => setActiveTab("history")}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
             activeTab === "history"
@@ -192,7 +192,7 @@ export default function InventoryManagementPage() {
         >
           <History className="h-4 w-4" />
           ประวัติ
-        </button>
+        </button> */}
       </div>
 
       {/* Tab Content */}

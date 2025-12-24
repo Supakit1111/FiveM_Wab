@@ -1,53 +1,61 @@
-import { useMemo, useState } from 'react'
-import type { FormEvent } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { apiFetch } from '../lib/api'
-import { setToken, setUser } from '../lib/auth'
+import { useMemo, useState } from "react";
+import type { FormEvent } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { apiFetch } from "../lib/api";
+import { setToken, setUser } from "../lib/auth";
 
 type LoginResponse = {
-  message: string
-  token: string
+  message: string;
+  token: string;
   user: {
-    id: number
-    inGameName: string
-    role: 'ADMIN' | 'USER'
-    profileImageUrl?: string | null
-  }
-}
+    id: number;
+    inGameName: string;
+    role: "ADMIN" | "USER";
+    profileImageUrl?: string | null;
+  };
+};
 
 export default function LoginPage() {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const redirectTo = useMemo(() => {
-    const state = location.state as { from?: string } | null
-    return state?.from ?? '/dashboard'
-  }, [location.state])
+    const state = location.state as { from?: string } | null;
+    return state?.from ?? "/dashboard";
+  }, [location.state]);
 
-  const [phoneNumber, setPhoneNumber] = useState('123456')
-  const [password, setPassword] = useState('admin123')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
     try {
-      const res = await apiFetch<LoginResponse>('/auth/login', {
-        method: 'POST',
+      const res = await apiFetch<LoginResponse>("/auth/login", {
+        method: "POST",
         body: JSON.stringify({ phoneNumber, password }),
-      })
+      });
 
-      setToken(res.token)
-      setUser(res.user)
-      navigate(redirectTo, { replace: true })
+      setToken(res.token);
+      setUser(res.user);
+      navigate(redirectTo, { replace: true });
     } catch (err) {
-      const msg = (err as { message?: string }).message ?? 'Login failed'
-      setError(msg)
+      let msg = (err as { message?: string }).message ?? "เข้าสู่ระบบไม่สำเร็จ";
+
+      // Translate common validation errors
+      if (msg.includes("Expected string length greater or equal to 6")) {
+        msg = "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร";
+      } else if (msg.includes("Invalid")) {
+        msg = "เบอร์โทรหรือรหัสผ่านไม่ถูกต้อง";
+      }
+
+      setError(msg);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -56,7 +64,7 @@ export default function LoginPage() {
       <div className="mx-auto flex min-h-screen w-full max-w-[1100px] items-center px-4 py-10">
         <div className="grid w-full gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
-            <div className="text-sm text-slate-400">Game Manager</div>
+            {/* <div className="text-sm text-slate-400">Game Manager</div> */}
             <h1 className="mt-1 text-2xl font-semibold">เข้าสู่ระบบ</h1>
             <p className="mt-2 text-sm text-slate-400">
               ใช้เบอร์ในเกมเป็น Username และรหัสผ่านที่ตั้งไว้
@@ -94,22 +102,20 @@ export default function LoginPage() {
                 disabled={loading}
                 className="mt-2 rounded-xl bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-500 disabled:opacity-60"
               >
-                {loading ? 'กำลังเข้าสู่ระบบ...' : 'Login'}
+                {loading ? "กำลังเข้าสู่ระบบ..." : "Login"}
               </button>
             </form>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900/60 to-slate-950/40 p-6">
-            <div className="text-xs font-medium text-teal-200">ฟังก์ชันหลัก</div>
-            <div className="mt-3 grid gap-3 text-sm text-slate-300">
-              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">Authentication & Account</div>
-              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">Admin Panel</div>
-              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">User Self-Service</div>
-              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">Announcement & Activity Log</div>
-            </div>
+          <div className="flex items-center justify-center rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900/60 to-slate-950/40 p-6">
+            <img
+              src="/OMG.png"
+              alt="Server Logo"
+              className="w-full max-w-[300px] object-contain drop-shadow-2xl"
+            />
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
