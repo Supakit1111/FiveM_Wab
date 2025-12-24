@@ -436,7 +436,7 @@ function GangMoneyManager({ isAdmin }: { isAdmin: boolean }) {
 
 export default function AdminPage() {
   // Alert hook for beautiful notifications
-  const { alert: alertData, showSuccess, showError, closeAlert } = useAlert();
+  const { showSuccess, showError } = useAlert();
 
   // User authentication and admin check
   const user = getUser();
@@ -452,8 +452,8 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Settings State
-  const [settings, setSettings] = useState<GlobalSetting[]>([]);
-  const [settingsLoading, setSettingsLoading] = useState(false);
+  // const [settings, setSettings] = useState<GlobalSetting[]>([]);
+  // const [settingsLoading, setSettingsLoading] = useState(false);
   const [savingSetting, setSavingSetting] = useState(false);
   const [attendanceTime, setAttendanceTime] = useState("10:00");
 
@@ -495,16 +495,16 @@ export default function AdminPage() {
   }
 
   async function loadSettings() {
-    setSettingsLoading(true);
+    // setSettingsLoading(true);
     try {
       const res = await apiFetch<GlobalSetting[]>("/admin/settings");
-      setSettings(res);
+      // setSettings(res);
       const timeSetting = res.find((s) => s.key === "attendance_deadline");
       if (timeSetting) setAttendanceTime(timeSetting.value);
     } catch (e) {
       console.error(e);
     } finally {
-      setSettingsLoading(false);
+      // setSettingsLoading(false);
     }
   }
 

@@ -1,55 +1,56 @@
-export type Role = 'ADMIN' | 'USER'
+export type Role = "ADMIN" | "USER";
 
 export type AuthUser = {
-  id: number
-  inGameName: string
-  role: Role
-  profileImageUrl?: string | null
-}
+  id: number;
+  inGameName: string;
+  phoneNumber?: string;
+  role: Role;
+  profileImageUrl?: string | null;
+};
 
-const TOKEN_KEY = 'gm_token'
-const USER_KEY = 'gm_user'
+const TOKEN_KEY = "gm_token";
+const USER_KEY = "gm_user";
 
 export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY)
+  return localStorage.getItem(TOKEN_KEY);
 }
 
 export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token)
+  localStorage.setItem(TOKEN_KEY, token);
 }
 
 export function clearToken(): void {
-  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(TOKEN_KEY);
 }
 
 export function getUser(): AuthUser | null {
-  const raw = localStorage.getItem(USER_KEY)
-  if (!raw) return null
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
   try {
-    return JSON.parse(raw) as AuthUser
+    return JSON.parse(raw) as AuthUser;
   } catch {
-    return null
+    return null;
   }
 }
 
 export function setUser(user: AuthUser): void {
-  localStorage.setItem(USER_KEY, JSON.stringify(user))
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
 export function clearUser(): void {
-  localStorage.removeItem(USER_KEY)
+  localStorage.removeItem(USER_KEY);
 }
 
 export function logout(): void {
-  clearToken()
-  clearUser()
+  clearToken();
+  clearUser();
 }
 
 export function isAuthed(): boolean {
-  return Boolean(getToken())
+  return Boolean(getToken());
 }
 
 export function hasRole(allowed: Role[], role?: Role): boolean {
-  if (!role) return false
-  return allowed.includes(role)
+  if (!role) return false;
+  return allowed.includes(role);
 }

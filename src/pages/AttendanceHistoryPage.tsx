@@ -64,7 +64,7 @@ export default function AttendanceHistoryPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Date range (default to last 7 days)
-  const [daysToShow, setDaysToShow] = useState(7);
+  const [daysToShow] = useState(7);
   const [endDate, setEndDate] = useState(new Date());
 
   // Search State

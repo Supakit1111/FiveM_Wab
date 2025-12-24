@@ -1,13 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  PlusCircle,
-  Pencil,
-  Trash2,
-  X,
-  Megaphone,
-  Calendar,
-  Bell,
-} from "lucide-react"; // Added Bell here
+import { PlusCircle, Pencil, Trash2, X, Bell } from "lucide-react"; // Added Bell here
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -52,7 +44,7 @@ function toDateInputValue(dateString: string): string {
 
 export function AnnouncementManager() {
   const [data, setData] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -68,7 +60,7 @@ export function AnnouncementManager() {
   });
 
   async function loadData() {
-    setLoading(true);
+    // setLoading(true);
     setError(null);
     try {
       const res = await apiFetch<Announcement[]>("/announcements");
@@ -76,7 +68,7 @@ export function AnnouncementManager() {
     } catch (e) {
       setError((e as any)?.message ?? "โหลดประกาศไม่สำเร็จ");
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   }
 
