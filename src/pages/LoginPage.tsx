@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { apiFetch } from "@/lib/api";
-import { getToken, setToken, setUser, getUser } from "@/lib/auth";
+import { getToken, setToken, setUser } from "@/lib/auth";
 import { Loader2, ArrowRight, ShieldCheck, Zap } from "lucide-react";
 import { OnlineUsers } from "@/components/OnlineUsers";
 import {
@@ -180,17 +180,6 @@ function UltimateCard({ children }: { children: React.ReactNode }) {
   );
 }
 
-type LoginResponse = {
-  message: string;
-  token: string;
-  user: {
-    id: number;
-    inGameName: string;
-    role: "ADMIN" | "USER";
-    profileImageUrl?: string | null;
-  };
-};
-
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -214,14 +203,10 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await apiFetch<{ token: string; user: any }>(
-        "/auth/login",
-        {
-          method: "POST",
-          body: JSON.stringify({ phoneNumber, password }),
-        },
-        false // No auth header needed
-      );
+      const res = await apiFetch<{ token: string; user: any }>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ phoneNumber, password }),
+      });
 
       setToken(res.token);
       setUser(res.user);
