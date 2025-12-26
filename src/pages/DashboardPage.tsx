@@ -413,7 +413,7 @@ export default function DashboardPage() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="p-6 md:p-8 space-y-8 max-w-[1600px] mx-auto"
+      className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-[1600px] mx-auto"
     >
       {/* Header Section */}
       <motion.div
@@ -421,7 +421,7 @@ export default function DashboardPage() {
         className="flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-200 via-emerald-200 to-teal-100 drop-shadow-sm">
+          <h1 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-200 via-emerald-200 to-teal-100 drop-shadow-sm">
             Dashboard
           </h1>
           <p className="mt-1 text-slate-400">ภาพรวมระบบและข้อมูลสำคัญ</p>
@@ -634,7 +634,7 @@ export default function DashboardPage() {
       {/* Check-in Status Table - Full Width */}
       <motion.div
         variants={itemVariants}
-        className="rounded-2xl border border-slate-800 bg-slate-950/40 p-6 backdrop-blur-sm shadow-xl"
+        className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 md:p-6 backdrop-blur-sm shadow-xl"
       >
         <SectionHeader
           icon={Users}
@@ -654,10 +654,18 @@ export default function DashboardPage() {
               <table className="w-full text-sm text-left">
                 <thead className="bg-slate-900/80 text-slate-400 font-medium border-b border-slate-800">
                   <tr>
-                    <th className="px-6 py-4 pl-8">ชื่อในเกม</th>
-                    <th className="px-6 py-4">เบอร์โทร</th>
-                    <th className="px-6 py-4 text-center">สถานะ</th>
-                    <th className="px-6 py-4 text-right pr-8">เวลาเช็คชื่อ</th>
+                    <th className="px-4 py-3 md:px-6 md:py-4 md:pl-8 text-nowrap">
+                      ชื่อในเกม
+                    </th>
+                    <th className="px-4 py-3 md:px-6 md:py-4 text-nowrap">
+                      เบอร์โทร
+                    </th>
+                    <th className="px-4 py-3 md:px-6 md:py-4 text-nowrap text-center">
+                      สถานะ
+                    </th>
+                    <th className="px-4 py-3 md:px-6 md:py-4 md:pr-8 text-nowrap text-right">
+                      เวลาเช็คชื่อ
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/50">
@@ -671,46 +679,46 @@ export default function DashboardPage() {
                         transition={{ delay: index * 0.05 }}
                         className="hover:bg-slate-800/30 transition-colors group"
                       >
-                        <td className="px-6 py-4 pl-8">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-600 to-teal-800 overflow-hidden flex-shrink-0 border border-slate-700 group-hover:border-teal-500/50 transition-colors shadow-sm flex items-center justify-center">
-                              <span className="text-lg font-bold text-white">
+                        <td className="px-4 py-3 pl-4 md:px-6 md:py-4 md:pl-8">
+                          <div className="flex items-center gap-3 md:gap-4">
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-teal-600 to-teal-800 overflow-hidden flex-shrink-0 border border-slate-700 group-hover:border-teal-500/50 transition-colors shadow-sm flex items-center justify-center">
+                              <span className="text-sm md:text-lg font-bold text-white">
                                 {user.inGameName?.charAt(0).toUpperCase() ||
                                   "U"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="font-semibold text-slate-200 group-hover:text-teal-200 transition-colors text-base">
+                              <span className="font-semibold text-slate-200 group-hover:text-teal-200 transition-colors text-sm md:text-base whitespace-nowrap">
                                 {user.inGameName}
                               </span>
-                              <span className="text-xs text-slate-500">
+                              <span className="text-[10px] md:text-xs text-slate-500">
                                 {user.role}
                               </span>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-slate-400 font-mono tracking-wide">
+                        <td className="px-4 py-3 md:px-6 md:py-4 text-slate-400 font-mono tracking-wide text-xs md:text-sm whitespace-nowrap">
                           {user.phoneNumber}
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-4 py-3 md:px-6 md:py-4 text-center whitespace-nowrap">
                           {user.hasCheckedIn ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
                               <CheckCircle className="w-3 h-3" />
                               มาแล้ว
                             </span>
                           ) : isPastDeadline ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
                               <XCircle className="w-3 h-3" />
                               ขาด
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 animate-pulse">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 animate-pulse">
                               <Clock className="w-3 h-3" />
                               รอเช็คชื่อ
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4 text-slate-400 font-mono text-xs text-right pr-8">
+                        <td className="px-4 py-3 md:px-6 md:py-4 md:pr-8 text-slate-400 font-mono text-xs md:text-sm text-right whitespace-nowrap">
                           {user.checkInTime
                             ? formatDateTime(user.checkInTime).split(" ")[1]
                             : "-"}
@@ -767,7 +775,7 @@ export default function DashboardPage() {
       {/* Recent Activity */}
       <motion.div
         variants={itemVariants}
-        className="rounded-2xl border border-slate-800 bg-slate-950/40 p-6 backdrop-blur-sm shadow-xl"
+        className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 md:p-6 backdrop-blur-sm shadow-xl"
       >
         <SectionHeader
           icon={Clock}
@@ -783,63 +791,65 @@ export default function DashboardPage() {
         {actLoading ? (
           <div className="text-center py-4 text-slate-400">กำลังโหลด...</div>
         ) : (
-          // Note: Since DataTable is a custom component, we animate the wrapper instead
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
+            className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0"
           >
-            <DataTable
-              columns={[
-                {
-                  header: "การกระทำ",
-                  accessor: (row) => <FormatAction action={row.action} />,
-                  className: "text-slate-300 font-medium pl-4",
-                },
-                {
-                  header: "ผู้เล่น",
-                  accessor: "user",
-                  className: "text-slate-300",
-                },
-                {
-                  header: "เวลา",
-                  accessor: (row) => (
-                    <div className="text-slate-400 text-xs whitespace-nowrap">
-                      {formatDateTime(row.time)}
-                    </div>
-                  ),
-                  className: "md:w-1/6",
-                },
-                {
-                  header: "สถานะ",
-                  accessor: (row) => (
-                    <Badge
-                      variant={
-                        row.status === "success"
-                          ? "default"
+            <div className="min-w-[600px] md:min-w-0">
+              <DataTable
+                columns={[
+                  {
+                    header: "การกระทำ",
+                    accessor: (row) => <FormatAction action={row.action} />,
+                    className: "text-slate-300 font-medium pl-4",
+                  },
+                  {
+                    header: "ผู้เล่น",
+                    accessor: "user",
+                    className: "text-slate-300",
+                  },
+                  {
+                    header: "เวลา",
+                    accessor: (row) => (
+                      <div className="text-slate-400 text-xs whitespace-nowrap">
+                        {formatDateTime(row.time)}
+                      </div>
+                    ),
+                    className: "md:w-1/6",
+                  },
+                  {
+                    header: "สถานะ",
+                    accessor: (row) => (
+                      <Badge
+                        variant={
+                          row.status === "success"
+                            ? "default"
+                            : row.status === "pending"
+                            ? "secondary"
+                            : "destructive"
+                        }
+                        className={
+                          row.status === "success"
+                            ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-200"
+                            : row.status === "pending"
+                            ? "border-amber-500/30 bg-amber-500/15 text-amber-200"
+                            : "border-rose-500/30 bg-rose-500/15 text-rose-200"
+                        }
+                      >
+                        {row.status === "success"
+                          ? "สำเร็จ"
                           : row.status === "pending"
-                          ? "secondary"
-                          : "destructive"
-                      }
-                      className={
-                        row.status === "success"
-                          ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-200"
-                          : row.status === "pending"
-                          ? "border-amber-500/30 bg-amber-500/15 text-amber-200"
-                          : "border-rose-500/30 bg-rose-500/15 text-rose-200"
-                      }
-                    >
-                      {row.status === "success"
-                        ? "สำเร็จ"
-                        : row.status === "pending"
-                        ? "รอ"
-                        : "ล้มเหลว"}
-                    </Badge>
-                  ),
-                },
-              ]}
-              data={recentActivities}
-            />
+                          ? "รอ"
+                          : "ล้มเหลว"}
+                      </Badge>
+                    ),
+                  },
+                ]}
+                data={recentActivities}
+              />
+            </div>
           </motion.div>
         )}
       </motion.div>
