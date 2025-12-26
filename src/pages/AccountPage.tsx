@@ -143,9 +143,9 @@ export default function AccountPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left Column: Avatar & Summary */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="md:col-span-1 space-y-6">
           <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6 flex flex-col items-center text-center">
             {/* Avatar - Show Initials */}
             <div className="w-40 h-40 rounded-full border-4 border-slate-800 bg-gradient-to-br from-teal-600 to-teal-800 shadow-xl flex items-center justify-center mb-4">
@@ -190,7 +190,7 @@ export default function AccountPage() {
         </div>
 
         {/* Right Column: Forms */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="md:col-span-2 space-y-6">
           {/* Personal Info Form */}
           <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
             <div className="flex items-center gap-2 mb-6 text-teal-400">
@@ -265,22 +265,50 @@ export default function AccountPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>รหัสผ่านใหม่</Label>
+                  <div className="flex justify-between">
+                    <Label>รหัสผ่านใหม่</Label>
+                    <span
+                      className={`text-xs ${
+                        newPassword.length > 0 && newPassword.length < 6
+                          ? "text-red-400"
+                          : newPassword.length >= 6
+                          ? "text-teal-400"
+                          : "text-slate-500"
+                      }`}
+                    >
+                      {newPassword.length}/6 ตัวอักษร
+                    </span>
+                  </div>
                   <Input
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="bg-slate-900/50 border-slate-800"
+                    className={`bg-slate-900/50 border-slate-800 ${
+                      newPassword.length > 0 && newPassword.length < 6
+                        ? "border-red-500/50 focus-visible:ring-red-500"
+                        : ""
+                    }`}
                     placeholder="••••••"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>ยืนยันรหัสผ่านใหม่</Label>
+                  <div className="flex justify-between">
+                    <Label>ยืนยันรหัสผ่านใหม่</Label>
+                    {confirmPassword && newPassword !== confirmPassword && (
+                      <span className="text-xs text-red-400">
+                        รหัสผ่านไม่ตรงกัน
+                      </span>
+                    )}
+                  </div>
                   <Input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="bg-slate-900/50 border-slate-800"
+                    className={`bg-slate-900/50 border-slate-800 ${
+                      confirmPassword && newPassword !== confirmPassword
+                        ? "border-red-500/50 focus-visible:ring-red-500"
+                        : ""
+                    }`}
                     placeholder="••••••"
                   />
                 </div>
@@ -290,8 +318,13 @@ export default function AccountPage() {
                 <Button
                   type="submit"
                   variant="default"
-                  disabled={saving}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-200"
+                  disabled={
+                    saving ||
+                    !currentPassword ||
+                    newPassword.length < 6 ||
+                    newPassword !== confirmPassword
+                  }
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
