@@ -277,6 +277,65 @@ const FormatAction = ({ action }: { action: string }) => {
     );
   }
 
+  // Check-in
+  if (action.startsWith("Check-in:")) {
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="outline"
+          className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+        >
+          เช็คชื่อ
+        </Badge>
+        <span className="text-slate-300">เช็คชื่อเข้างาน</span>
+      </span>
+    );
+  }
+
+  // Gang Wallet - Income
+  if (
+    action.includes("Gang wallet income") ||
+    action.includes("ฝากเงินเข้ากองกลาง")
+  ) {
+    const match = action.match(/([0-9,]+)/);
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="default"
+          className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+        >
+          กองกลาง
+        </Badge>
+        <span className="text-slate-300">ฝากเงิน</span>
+        {match && (
+          <span className="text-emerald-400 font-mono">+{match[1]} ฿</span>
+        )}
+      </span>
+    );
+  }
+
+  // Gang Wallet - Expense
+  if (
+    action.includes("Gang wallet expense") ||
+    action.includes("เบิกเงินจากกองกลาง")
+  ) {
+    const match = action.match(/([0-9,]+)/);
+    return (
+      <span className="flex items-center gap-2">
+        <Badge
+          variant="destructive"
+          className="bg-rose-500/10 text-rose-400 border-rose-500/20"
+        >
+          กองกลาง
+        </Badge>
+        <span className="text-slate-300">เบิกเงิน</span>
+        {match && (
+          <span className="text-rose-400 font-mono">-{match[1]} ฿</span>
+        )}
+      </span>
+    );
+  }
+
   return (
     <span
       className="text-slate-300 truncate max-w-[300px] block"
