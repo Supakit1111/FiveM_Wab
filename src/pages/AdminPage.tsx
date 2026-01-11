@@ -27,6 +27,8 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
 import { useAlert } from "@/components/ui/alert";
 import { AnnouncementManager } from "@/components/admin/AnnouncementManager";
+import { RoundConfigPanel } from "@/components/admin/RoundConfigPanel";
+import { AttendanceManager } from "@/components/admin/AttendanceManager";
 import { apiFetch } from "@/lib/api";
 import { getUser } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -443,7 +445,7 @@ export default function AdminPage() {
   const isAdmin = user?.role === "ADMIN";
 
   const [activeTab, setActiveTab] = useState<
-    "users" | "announcements" | "settings" | "money"
+    "users" | "announcements" | "settings" | "money" | "attendance"
   >("users");
 
   // Users State
@@ -673,6 +675,18 @@ export default function AdminPage() {
           จัดการเงินในแก๊ง (Gang Money)
         </button>
         <button
+          onClick={() => setActiveTab("attendance")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+            activeTab === "attendance"
+              ? "border-emerald-500 text-emerald-400 bg-slate-900/40"
+              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/20"
+          )}
+        >
+          <Clock className="h-4 w-4" />
+          เช็คชื่อ (Attendance)
+        </button>
+        <button
           onClick={() => setActiveTab("announcements")}
           className={cn(
             "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
@@ -801,40 +815,40 @@ export default function AdminPage() {
             />
           )}
         </>
+      ) : activeTab === "attendance" ? (
+        <AttendanceManager />
       ) : activeTab === "money" ? (
         <GangMoneyManager isAdmin={isAdmin} />
       ) : activeTab === "announcements" ? (
         <AnnouncementManager />
-      ) : (
-        // Settings Tab
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6">
-            <SectionHeader
-              icon={Clock}
-              title="ตั้งค่าเวลาเช็คชื่อ"
-              subtitle="Attendance Settings"
-              className="mb-6"
-            />
+      ) : activeTab === "settings" ? (
+        <div className="space-y-6">
+          <SectionHeader
+            icon={Settings}
+            title="ตั้งค่าระบบ"
+            subtitle="System Configuration"
+          />
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  กำหนดเวลาเช็คชื่อ (Cut-off Time)
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="time"
-                    value={attendanceTime}
-                    onChange={(e) => setAttendanceTime(e.target.value)}
-                    className="bg-slate-900 border border-slate-700 text-slate-100 text-lg rounded-lg focus:ring-teal-500 focus:border-teal-500 block p-2.5 scheme-dark"
-                  />
-                  <span className="text-slate-500 text-sm">
-                    ถ้าเช็คชื่อหลังเวลานี้ จะถือว่า "มาสาย/ขาด" ตามเงื่อนไข
-                  </span>
-                </div>
-              </div>
+          {/* Attendance Round Configuration */}
+          <RoundConfigPanel />
 
-              <div className="pt-4 border-t border-slate-800">
+          {/* Existing Settings */}
+          <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-6">
+            <h3 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-teal-400" />
+              ตั้งค่าอื่นๆ (Other Settings)
+            </h3>
+            <div className="max-w-md">
+              <label className="block text-sm font-medium text-slate-400 mb-2">
+                เวลาเส้นตายเช็คชื่อ (Attendance Deadline)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="time"
+                  className="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-100 focus:outline-none focus:border-teal-500 w-full"
+                  value={attendanceTime}
+                  onChange={(e) => setAttendanceTime(e.target.value)}
+                />
                 <button
                   onClick={() =>
                     saveSetting("attendance_deadline", attendanceTime)
@@ -853,7 +867,7 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Create Member Modal */}
       {createOpen && (

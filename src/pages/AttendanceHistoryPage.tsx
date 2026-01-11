@@ -18,6 +18,7 @@ type AttendanceLog = {
   id: number;
   checkInTime: string;
   status: string;
+  session: number; // Add session
   userId?: number; // Optional เพราะบางที API /me อาจไม่ส่งมา
   user?: {
     id: number;
@@ -60,6 +61,7 @@ export default function AttendanceHistoryPage() {
   // States
   const [logs, setLogs] = useState<AttendanceLog[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [roundsConfig, setRoundsConfig] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,50 +77,38 @@ export default function AttendanceHistoryPage() {
       setLoading(true);
       setError(null);
       try {
-        if (isAdmin) {
-          // === ADMIN: Load All Data ===
-          const end = endDate;
-          const start = new Date(end);
-          start.setDate(start.getDate() - daysToShow + 1);
+        // === Load All Data for Everyone ===
+        const end = endDate;
+        const start = new Date(end);
+        start.setDate(start.getDate() - daysToShow + 1);
 
-          // 1. Fetch All Users
-          const usersRes = await apiFetch<User[]>("/admin/users");
-          if (Array.isArray(usersRes)) {
-            setUsers(
-              usersRes.sort((a, b) =>
-                (a.inGameName || "").localeCompare(b.inGameName || "")
-              )
-            );
-          } else {
-            setUsers([]);
-          }
-
-          // 2. Fetch All Logs in Range
-          const logsRes = await apiFetch<AttendanceLog[]>(
-            `/attendance?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
+        // 1. Fetch All Users
+        const usersRes = await apiFetch<User[]>("/attendance/users");
+        if (Array.isArray(usersRes)) {
+          setUsers(
+            usersRes.sort((a, b) =>
+              (a.inGameName || "").localeCompare(b.inGameName || "")
+            )
           );
-          setLogs(logsRes);
         } else {
-          // === USER: Load My Data ===
+          setUsers([]);
+        }
 
-          // 1. Setup User Row (Mock row for self)
-          if (user) {
-            // เราต้องมั่นใจว่า user object มี id
-            const currentUserId = user.id || 0;
-            setUsers([
-              {
-                id: currentUserId,
-                inGameName: user.inGameName || "Unknown",
-                phoneNumber: user.phoneNumber || "-",
-                role: user.role,
-              },
-            ]);
-          }
+        // 2. Fetch All Logs in Range
+        const logsRes = await apiFetch<AttendanceLog[]>(
+          `/attendance?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
+        );
+        setLogs(logsRes);
 
-          // 2. Fetch My Logs
-          // API /attendance/me คืนค่า logs ของเราเอง
-          const logsRes = await apiFetch<AttendanceLog[]>("/attendance/me");
-          setLogs(logsRes);
+        // 3. Fetch Rounds Config
+        const settings = await apiFetch<any[]>("/admin/settings");
+        const roundsSetting = settings.find(
+          (s) => s.key === "attendance_rounds"
+        );
+        if (roundsSetting) {
+          setRoundsConfig(JSON.parse(roundsSetting.value));
+        } else {
+          setRoundsConfig([{ id: 1 }, { id: 2 }, { id: 3 }]);
         }
       } catch (e) {
         console.error("Load Error:", e);
@@ -128,7 +118,7 @@ export default function AttendanceHistoryPage() {
       }
     }
     void loadData();
-  }, [isAdmin, daysToShow, endDate]); // เอา user ออกจาก dependency เพื่อกัน infinite loop ถ้า user object เปลี่ยน ref
+  }, [daysToShow, endDate]);
 
   // Utilities for Sheet
   const getDates = () => {
@@ -143,23 +133,13 @@ export default function AttendanceHistoryPage() {
 
   const getDateKey = (d: Date) => d.toISOString().split("T")[0];
 
-  // --- FIX: Logic การจับคู่ Log ---
-  const getLogForUserDate = (userId: number, date: Date) => {
+  // --- Logic การจับคู่ Log ---
+  const getLogsForUserDate = (userId: number, date: Date) => {
     const key = getDateKey(date);
 
-    return logs.find((l) => {
+    return logs.filter((l) => {
       const logDateKey = getDateKey(new Date(l.checkInTime));
-
-      if (isAdmin) {
-        // ถ้าเป็น Admin ต้องเช็ค userId ให้ตรงคน
-        return l.userId === userId && logDateKey === key;
-      } else {
-        // *** FIX BUG ***
-        // ถ้าเป็น User ธรรมดา ข้อมูล logs ที่ได้มาเป็นของตัวเองทั้งหมดอยู่แล้ว
-        // ไม่ต้องเช็ค userId (เพราะบางที API ไม่ส่ง userId กลับมา หรือส่งมาไม่ตรง)
-        // ให้เช็คแค่วันที่ก็พอ
-        return logDateKey === key;
-      }
+      return l.userId === userId && logDateKey === key;
     });
   };
 
@@ -209,12 +189,10 @@ export default function AttendanceHistoryPage() {
       >
         <div>
           <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-200 to-emerald-200">
-            {isAdmin ? "ตารางสรุปการเช็คชื่อ" : "ประวัติการเช็คชื่อ"}
+            ตารางสรุปการเช็คชื่อ
           </h1>
           <p className="mt-1 text-slate-400">
-            {isAdmin
-              ? "Attendance Sheet (Daily Summary)"
-              : "My Attendance Sheet"}
+            Attendance Sheet (Daily Summary)
           </p>
         </div>
 
@@ -294,11 +272,7 @@ export default function AttendanceHistoryPage() {
                   <th className="sticky left-0 z-30 bg-slate-950/95 border-b border-r border-slate-800 px-4 py-4 text-left min-w-[200px] text-slate-300 shadow-[4px_0_24px_-2px_rgba(0,0,0,0.5)]">
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-teal-500" />
-                      <span>
-                        {isAdmin
-                          ? `รายชื่อ (${filteredUsers.length})`
-                          : "ผู้ใช้งาน"}
-                      </span>
+                      <span>รายชื่อ ({filteredUsers.length})</span>
                     </div>
                   </th>
                   {dates.map((d) => (
@@ -365,34 +339,66 @@ export default function AttendanceHistoryPage() {
 
                       {/* Date Columns */}
                       {dates.map((d) => {
-                        const log = getLogForUserDate(u.id, d);
+                        const dayLogs = getLogsForUserDate(u.id, d);
                         const isToday =
                           getDateKey(d) === getDateKey(new Date());
+
+                        // Default rounds if config missing
+                        const rounds =
+                          roundsConfig.length > 0
+                            ? roundsConfig
+                            : [{ id: 1 }, { id: 2 }, { id: 3 }];
+
                         return (
                           <td
                             key={d.toISOString()}
                             className={cn(
-                              "px-2 py-2 text-center border-l border-slate-800/30",
+                              "px-2 py-2 text-center border-l border-slate-800/30 align-top",
                               isToday
                                 ? "bg-teal-500/5 group-hover:bg-teal-500/10"
                                 : ""
                             )}
                           >
-                            {log ? (
-                              <motion.div
-                                whileHover={{ scale: 1.2, rotate: 10 }}
-                                className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30 shadow-[0_0_10px_-2px_rgba(16,185,129,0.3)] cursor-help"
-                                title={`เวลา: ${new Date(
-                                  log.checkInTime
-                                ).toLocaleTimeString("th-TH")}`}
-                              >
-                                <UserCheck className="w-4 h-4" />
-                              </motion.div>
-                            ) : (
-                              <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-800/20 text-slate-700/50">
-                                <div className="w-1.5 h-1.5 rounded-full bg-current"></div>
-                              </div>
-                            )}
+                            <div className="flex flex-wrap justify-center gap-1 min-w-[60px]">
+                              {rounds.map((r: any) => {
+                                const log = dayLogs.find(
+                                  (l) => l.session === r.id
+                                );
+                                let colorClass =
+                                  "bg-slate-800/20 text-slate-700/30"; // Absent/Pending
+
+                                if (log) {
+                                  if (log.status === "O")
+                                    colorClass =
+                                      "bg-emerald-500 text-emerald-950 shadow-[0_0_8px_rgba(16,185,129,0.5)]";
+                                  else if (log.status === "L")
+                                    colorClass = "bg-amber-500 text-amber-950";
+                                  else if (log.status === "A")
+                                    colorClass = "bg-rose-500 text-rose-950";
+                                } else if (isToday) {
+                                  // Check if round passed (simple time check could move here or just keep gray)
+                                }
+
+                                return (
+                                  <div
+                                    key={r.id}
+                                    title={
+                                      log
+                                        ? `${
+                                            r.name || "Round " + r.id
+                                          }: ${new Date(
+                                            log.checkInTime
+                                          ).toLocaleTimeString("th-TH")}`
+                                        : `${r.name || "Round " + r.id}: -`
+                                    }
+                                    className={cn(
+                                      "w-2 h-2 rounded-full",
+                                      colorClass
+                                    )}
+                                  />
+                                );
+                              })}
+                            </div>
                           </td>
                         );
                       })}
@@ -408,15 +414,11 @@ export default function AttendanceHistoryPage() {
                     ✅ มา (Present)
                   </td>
                   {dates.map((d) => {
-                    // Count logic that works for both Admin (all users) and User (only self)
+                    // Count all logs for that day
                     const present = logs.filter((l) => {
-                      const dateMatch =
-                        getDateKey(new Date(l.checkInTime)) === getDateKey(d);
-                      if (isAdmin) {
-                        return dateMatch; // Count all logs for that day
-                      } else {
-                        return dateMatch; // Count my log for that day
-                      }
+                      return (
+                        getDateKey(new Date(l.checkInTime)) === getDateKey(d)
+                      );
                     }).length;
 
                     return (
@@ -425,34 +427,6 @@ export default function AttendanceHistoryPage() {
                         className="px-2 py-3 text-center text-emerald-400 font-bold text-xs bg-emerald-500/5"
                       >
                         {present}
-                      </td>
-                    );
-                  })}
-                </tr>
-                <tr>
-                  <td className="sticky left-0 z-30 bg-slate-900/95 border-r border-slate-800 px-4 py-3 text-right text-rose-400 text-xs font-semibold shadow-[4px_0_24px_-2px_rgba(0,0,0,0.5)]">
-                    ❌ ขาด (Absent)
-                  </td>
-                  {dates.map((d) => {
-                    const present = logs.filter((l) => {
-                      const dateMatch =
-                        getDateKey(new Date(l.checkInTime)) === getDateKey(d);
-                      if (isAdmin) {
-                        return dateMatch;
-                      } else {
-                        return dateMatch;
-                      }
-                    }).length;
-
-                    // Logic: Total displayed users - Present count
-                    const absent = filteredUsers.length - present;
-
-                    return (
-                      <td
-                        key={d.toISOString()}
-                        className="px-2 py-3 text-center text-rose-400 font-bold text-xs bg-rose-500/5"
-                      >
-                        {absent > 0 ? absent : "-"}
                       </td>
                     );
                   })}

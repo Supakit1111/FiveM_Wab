@@ -12,23 +12,14 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { StatCard } from "@/components/ui/stat-card";
-import { DataTable } from "@/components/ui/data-table";
 import { SectionHeader } from "@/components/ui/section-header";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AttendanceBadge } from "@/components/attendance/AttendanceBadge";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
 // --- Types ---
-type ActivityRow = {
-  id: number;
-  action: string;
-  user: string;
-  time: string;
-  status: "success" | "pending" | "rejected";
-};
-
 type Announcement = {
   id: number;
   title: string;
@@ -55,7 +46,17 @@ type CheckinUser = {
   role: string;
   profileImageUrl?: string;
   hasCheckedIn: boolean;
-  checkInTime?: string;
+  sessions?: Record<
+    number,
+    { status: "O" | "L" | "A" | "-" | null; checkInTime: string | null }
+  >;
+};
+
+type RoundConfig = {
+  id: number;
+  name: string;
+  startTime: string;
+  endTime: string;
 };
 
 // --- Animations ---
@@ -102,250 +103,6 @@ const formatDate = (dateStr: string) => {
   });
 };
 
-const formatDateTime = (dateStr: string) => {
-  return new Date(dateStr).toLocaleString("th-TH");
-};
-
-const FormatAction = ({ action }: { action: string }) => {
-  if (action.startsWith("Updated profile:")) {
-    try {
-      const jsonStr = action.replace("Updated profile: ", "");
-      const obj = JSON.parse(jsonStr);
-      if (obj.profileImageUrl) {
-        return (
-          <span className="flex items-center gap-2">
-            <Badge
-              variant="outline"
-              className="border-blue-500/30 text-blue-400 bg-blue-500/10"
-            >
-              โปรไฟล์
-            </Badge>
-            อัปเดตรูปประจำตัว
-          </span>
-        );
-      }
-      if (obj.inGameName) {
-        return (
-          <span className="flex items-center gap-2">
-            <Badge
-              variant="outline"
-              className="border-blue-500/30 text-blue-400 bg-blue-500/10"
-            >
-              โปรไฟล์
-            </Badge>
-            เปลี่ยนชื่อเป็น{" "}
-            <span className="text-slate-200 font-medium">{obj.inGameName}</span>
-          </span>
-        );
-      }
-    } catch {
-      return <span>{action}</span>;
-    }
-  }
-
-  if (action.startsWith("Update setting:")) {
-    const match = action.match(/Update setting: (.*) = (.*)/);
-    if (match) {
-      return (
-        <span className="flex items-center gap-2">
-          <Badge
-            variant="outline"
-            className="border-purple-500/30 text-purple-400 bg-purple-500/10"
-          >
-            ตั้งค่า
-          </Badge>
-          <span className="font-mono text-xs text-slate-400">{match[1]}</span>
-          <span className="text-slate-500">→</span>
-          <span className="text-emerald-400 font-mono">{match[2]}</span>
-        </span>
-      );
-    }
-  }
-
-  if (action.startsWith("Withdraw")) {
-    const match = action.match(/itemId=(.*), qty=(.*)/);
-    if (match) {
-      return (
-        <span className="flex items-center gap-2">
-          <Badge
-            variant="destructive"
-            className="bg-rose-500/10 text-rose-400 border-rose-500/20"
-          >
-            เบิกของ
-          </Badge>
-          <span className="text-slate-300">Item {match[1]}</span>
-          <span className="text-slate-500">x</span>
-          <span className="text-slate-200">{match[2]}</span>
-        </span>
-      );
-    }
-  }
-
-  if (action.startsWith("Deposit")) {
-    const match = action.match(/itemId=(.*), qty=(.*)/);
-    if (match) {
-      return (
-        <span className="flex items-center gap-2">
-          <Badge
-            variant="default"
-            className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-          >
-            ฝากของ
-          </Badge>
-          <span className="text-slate-300">Item {match[1]}</span>
-          <span className="text-slate-500">x</span>
-          <span className="text-slate-200">{match[2]}</span>
-        </span>
-      );
-    }
-  }
-
-  // --- NEW: Shortened Logs ---
-
-  // Login
-  if (action.startsWith("Login:")) {
-    return (
-      <span className="flex items-center gap-2">
-        <Badge
-          variant="outline"
-          className="border-teal-500/30 text-teal-400 bg-teal-500/10"
-        >
-          Login
-        </Badge>
-        <span className="text-slate-300">เข้าสู่ระบบสำเร็จ</span>
-      </span>
-    );
-  }
-
-  // Create Announcement
-  if (action.startsWith("Create announcement")) {
-    return (
-      <span className="flex items-center gap-2">
-        <Badge
-          variant="outline"
-          className="border-amber-500/30 text-amber-400 bg-amber-500/10"
-        >
-          ประกาศ
-        </Badge>
-        <span className="text-slate-300">สร้างประกาศใหม่</span>
-      </span>
-    );
-  }
-
-  // Update Announcement
-  if (action.startsWith("Update announcement")) {
-    return (
-      <span className="flex items-center gap-2">
-        <Badge
-          variant="outline"
-          className="border-amber-500/30 text-amber-400 bg-amber-500/10"
-        >
-          ประกาศ
-        </Badge>
-        <span className="text-slate-300">แก้ไขประกาศ</span>
-      </span>
-    );
-  }
-
-  // Delete Announcement
-  if (action.startsWith("Delete announcement")) {
-    return (
-      <span className="flex items-center gap-2">
-        <Badge
-          variant="destructive"
-          className="border-rose-500/30 text-rose-400 bg-rose-500/10"
-        >
-          ประกาศ
-        </Badge>
-        <span className="text-slate-300">ลบประกาศ</span>
-      </span>
-    );
-  }
-
-  // Delete User
-  if (action.startsWith("Delete user")) {
-    return (
-      <span className="flex items-center gap-2">
-        <Badge
-          variant="destructive"
-          className="border-rose-500/30 text-rose-400 bg-rose-500/10"
-        >
-          Admin
-        </Badge>
-        <span className="text-slate-300">ลบสมาชิกออกจากระบบ</span>
-      </span>
-    );
-  }
-
-  // Check-in
-  if (action.startsWith("Check-in:")) {
-    return (
-      <span className="flex items-center gap-2">
-        <Badge
-          variant="outline"
-          className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
-        >
-          เช็คชื่อ
-        </Badge>
-        <span className="text-slate-300">เช็คชื่อเข้างาน</span>
-      </span>
-    );
-  }
-
-  // Gang Wallet - Income
-  if (
-    action.includes("Gang wallet income") ||
-    action.includes("ฝากเงินเข้ากองกลาง")
-  ) {
-    const match = action.match(/([0-9,]+)/);
-    return (
-      <span className="flex items-center gap-2">
-        <Badge
-          variant="default"
-          className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-        >
-          กองกลาง
-        </Badge>
-        <span className="text-slate-300">ฝากเงิน</span>
-        {match && (
-          <span className="text-emerald-400 font-mono">+{match[1]} ฿</span>
-        )}
-      </span>
-    );
-  }
-
-  // Gang Wallet - Expense
-  if (
-    action.includes("Gang wallet expense") ||
-    action.includes("เบิกเงินจากกองกลาง")
-  ) {
-    const match = action.match(/([0-9,]+)/);
-    return (
-      <span className="flex items-center gap-2">
-        <Badge
-          variant="destructive"
-          className="bg-rose-500/10 text-rose-400 border-rose-500/20"
-        >
-          กองกลาง
-        </Badge>
-        <span className="text-slate-300">เบิกเงิน</span>
-        {match && (
-          <span className="text-rose-400 font-mono">-{match[1]} ฿</span>
-        )}
-      </span>
-    );
-  }
-
-  return (
-    <span
-      className="text-slate-300 truncate max-w-[300px] block"
-      title={action}
-    >
-      {action}
-    </span>
-  );
-};
-
 // --- Main Component ---
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -360,10 +117,7 @@ export default function DashboardPage() {
   const [checkinLoading, setCheckinLoading] = useState(true);
   const [checkinPage, setCheckinPage] = useState(1);
   const [checkinTotalPages, setCheckinTotalPages] = useState(1);
-
-  const [recentActivities, setRecentActivities] = useState<ActivityRow[]>([]);
-  const [actLoading, setActLoading] = useState(true);
-  const [actError, setActError] = useState<string | null>(null);
+  const [roundsConfig, setRoundsConfig] = useState<RoundConfig[]>([]);
 
   // Countdown Logic
   const [timeRemaining, setTimeRemaining] = useState<string>("");
@@ -410,9 +164,11 @@ export default function DashboardPage() {
         const data = await apiFetch<{
           users: CheckinUser[];
           pagination: { totalPages: number };
+          roundsConfig: RoundConfig[];
         }>(`/dashboard/checkin-status?page=${checkinPage}&limit=10`);
         setCheckinData(data.users || []);
         setCheckinTotalPages(data.pagination?.totalPages || 1);
+        if (data.roundsConfig) setRoundsConfig(data.roundsConfig);
       } catch {
         // ignore
       } finally {
@@ -420,21 +176,6 @@ export default function DashboardPage() {
       }
     })();
   }, [checkinPage]);
-
-  // Fetch recent activities
-  useEffect(() => {
-    (async () => {
-      setActLoading(true);
-      try {
-        const data = await apiFetch<ActivityRow[]>("/dashboard/activities");
-        setRecentActivities(data);
-      } catch (e) {
-        setActError((e as any)?.message ?? "Failed to load activities");
-      } finally {
-        setActLoading(false);
-      }
-    })();
-  }, []);
 
   // Countdown timer effect
   useEffect(() => {
@@ -719,12 +460,21 @@ export default function DashboardPage() {
                     <th className="px-4 py-3 md:px-6 md:py-4 text-nowrap">
                       เบอร์โทร
                     </th>
-                    <th className="px-4 py-3 md:px-6 md:py-4 text-nowrap text-center">
-                      สถานะ
-                    </th>
-                    <th className="px-4 py-3 md:px-6 md:py-4 md:pr-8 text-nowrap text-right">
-                      เวลาเช็คชื่อ
-                    </th>
+                    {(roundsConfig.length > 0
+                      ? roundsConfig
+                      : [
+                          { id: 1, name: "รอบที่ 1" },
+                          { id: 2, name: "รอบที่ 2" },
+                          { id: 3, name: "รอบที่ 3" },
+                        ]
+                    ).map((round: any) => (
+                      <th
+                        key={round.id}
+                        className="px-4 py-3 md:px-6 md:py-4 text-nowrap text-center"
+                      >
+                        {round.name}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/50">
@@ -740,7 +490,7 @@ export default function DashboardPage() {
                       >
                         <td className="px-4 py-3 pl-4 md:px-6 md:py-4 md:pl-8">
                           <div className="flex items-center gap-3 md:gap-4">
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-teal-600 to-teal-800 overflow-hidden flex-shrink-0 border border-slate-700 group-hover:border-teal-500/50 transition-colors shadow-sm flex items-center justify-center">
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-linear-to-br from-teal-600 to-teal-800 overflow-hidden shrink-0 border border-slate-700 group-hover:border-teal-500/50 transition-colors shadow-sm flex items-center justify-center">
                               <span className="text-sm md:text-lg font-bold text-white">
                                 {user.inGameName?.charAt(0).toUpperCase() ||
                                   "U"}
@@ -759,36 +509,32 @@ export default function DashboardPage() {
                         <td className="px-4 py-3 md:px-6 md:py-4 text-slate-400 font-mono tracking-wide text-xs md:text-sm whitespace-nowrap">
                           {user.phoneNumber}
                         </td>
-                        <td className="px-4 py-3 md:px-6 md:py-4 text-center whitespace-nowrap">
-                          {user.hasCheckedIn ? (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                              <CheckCircle className="w-3 h-3" />
-                              มาแล้ว
-                            </span>
-                          ) : isPastDeadline ? (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                              <XCircle className="w-3 h-3" />
-                              ขาด
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 animate-pulse">
-                              <Clock className="w-3 h-3" />
-                              รอเช็คชื่อ
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 md:px-6 md:py-4 md:pr-8 text-slate-400 font-mono text-xs md:text-sm text-right whitespace-nowrap">
-                          {user.checkInTime
-                            ? formatDateTime(user.checkInTime).split(" ")[1]
-                            : "-"}
-                        </td>
+                        {(roundsConfig.length > 0
+                          ? roundsConfig
+                          : [{ id: 1 }, { id: 2 }, { id: 3 }]
+                        ).map((round: any) => {
+                          const session = user.sessions?.[round.id];
+                          return (
+                            <td
+                              key={round.id}
+                              className="px-4 py-3 md:px-6 md:py-4 text-center whitespace-nowrap"
+                            >
+                              <div className="flex justify-center">
+                                <AttendanceBadge
+                                  status={session ? session.status : null}
+                                  time={session ? session.checkInTime : null}
+                                />
+                              </div>
+                            </td>
+                          );
+                        })}
                       </motion.tr>
                     ))}
                   </AnimatePresence>
                   {checkinData.length === 0 && (
                     <tr>
                       <td
-                        colSpan={4}
+                        colSpan={roundsConfig.length + 2}
                         className="px-6 py-12 text-center text-slate-500"
                       >
                         ไม่พบข้อมูลสมาชิก
@@ -828,88 +574,6 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-        )}
-      </motion.div>
-
-      {/* Recent Activity */}
-      <motion.div
-        variants={itemVariants}
-        className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 md:p-6 backdrop-blur-sm shadow-xl"
-      >
-        <SectionHeader
-          icon={Clock}
-          title="กิจกรรมล่าสุด"
-          subtitle="Recent Activities"
-          className="mb-6"
-        />
-
-        {actError ? (
-          <div className="text-sm text-rose-400 mb-4">{actError}</div>
-        ) : null}
-
-        {actLoading ? (
-          <div className="text-center py-4 text-slate-400">กำลังโหลด...</div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0"
-          >
-            <div className="min-w-[600px] md:min-w-0">
-              <DataTable
-                columns={[
-                  {
-                    header: "การกระทำ",
-                    accessor: (row) => <FormatAction action={row.action} />,
-                    className: "text-slate-300 font-medium pl-4",
-                  },
-                  {
-                    header: "ผู้เล่น",
-                    accessor: "user",
-                    className: "text-slate-300",
-                  },
-                  {
-                    header: "เวลา",
-                    accessor: (row) => (
-                      <div className="text-slate-400 text-xs whitespace-nowrap">
-                        {formatDateTime(row.time)}
-                      </div>
-                    ),
-                    className: "md:w-1/6",
-                  },
-                  {
-                    header: "สถานะ",
-                    accessor: (row) => (
-                      <Badge
-                        variant={
-                          row.status === "success"
-                            ? "default"
-                            : row.status === "pending"
-                            ? "secondary"
-                            : "destructive"
-                        }
-                        className={
-                          row.status === "success"
-                            ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-200"
-                            : row.status === "pending"
-                            ? "border-amber-500/30 bg-amber-500/15 text-amber-200"
-                            : "border-rose-500/30 bg-rose-500/15 text-rose-200"
-                        }
-                      >
-                        {row.status === "success"
-                          ? "สำเร็จ"
-                          : row.status === "pending"
-                          ? "รอ"
-                          : "ล้มเหลว"}
-                      </Badge>
-                    ),
-                  },
-                ]}
-                data={recentActivities}
-              />
-            </div>
-          </motion.div>
         )}
       </motion.div>
 

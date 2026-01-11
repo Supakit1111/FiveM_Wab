@@ -7,6 +7,7 @@ import AccountPage from "./pages/AccountPage";
 import AdminPage from "./pages/AdminPage";
 import SelfServicePage from "./pages/SelfServicePage";
 import AttendanceHistoryPage from "./pages/AttendanceHistoryPage"; // Updated import
+import AttendanceStatsPage from "./pages/AttendanceStatsPage";
 import InventoryManagementPage from "./pages/InventoryManagementPage";
 import LogsPage from "./pages/LogsPage";
 
@@ -28,6 +29,7 @@ export default function App() {
               element={<AttendanceHistoryPage />}
             />{" "}
             {/* Updated route */}
+            <Route path="/attendance-stats" element={<AttendanceStatsPage />} />
             <Route
               path="/inventory-management"
               element={<InventoryManagementPage />}

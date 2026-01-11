@@ -7,6 +7,7 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
+  BarChart3,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -32,7 +33,7 @@ const menuItems = [
   },
   // Admin Section
   {
-    title: "เช็คชื่อ & เบิก/ฝากของ",
+    title: "เบิก/ฝากของ",
     subtitle: "Check-in & Withdraw",
     icon: User,
     path: "/self",
@@ -42,6 +43,12 @@ const menuItems = [
     subtitle: "Attendance History",
     icon: Megaphone,
     path: "/attendance-history",
+  },
+  {
+    title: "สถิติการเข้าร่วมกิจกรรม",
+    subtitle: "Attendance Statistics",
+    icon: BarChart3,
+    path: "/attendance-stats",
   },
   {
     title: "บันทึกและรายงาน",

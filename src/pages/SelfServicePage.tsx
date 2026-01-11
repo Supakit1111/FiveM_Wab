@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ClipboardCheck, Package, PlusCircle } from "lucide-react";
+import { Package, PlusCircle } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
@@ -47,9 +47,6 @@ export default function SelfServicePage() {
 
   const [txs, setTxs] = useState<TxRow[]>([]);
   const [txLoading, setTxLoading] = useState(true);
-
-  const [checkinLoading, setCheckinLoading] = useState(false);
-  const [checkedToday, setCheckedToday] = useState(false);
 
   const [withdrawItemId, setWithdrawItemId] = useState<string>("");
   const [withdrawQty, setWithdrawQty] = useState<number>(1);
@@ -106,33 +103,8 @@ export default function SelfServicePage() {
   useEffect(() => {
     void refreshItems();
     void refreshTx();
-    void (async () => {
-      try {
-        const res = await apiFetch<{ checked: boolean }>("/attendance/today");
-        setCheckedToday(Boolean(res.checked));
-      } catch {
-        // ignore
-      }
-    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  async function doCheckin() {
-    setCheckinLoading(true);
-    try {
-      const res = await apiFetch<{ ok: boolean; message: string }>(
-        "/attendance/checkin",
-        { method: "POST", body: "{}" }
-      );
-      showSuccess("เช็คชื่อสำเร็จ", res.message);
-      setCheckedToday(true);
-      await refreshTx();
-    } catch (e) {
-      showError("เช็คชื่อไม่สำเร็จ", (e as any)?.message ?? "เกิดข้อผิดพลาด");
-    } finally {
-      setCheckinLoading(false);
-    }
-  }
 
   async function doWithdrawConfirmed(
     action: Extract<ConfirmAction, { type: "withdraw" }>
@@ -205,28 +177,7 @@ export default function SelfServicePage() {
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5">
-          <SectionHeader
-            icon={ClipboardCheck}
-            title="เช็คชื่อ"
-            subtitle="Attendance"
-          />
-
-          <button
-            className="w-full rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-60"
-            disabled={checkinLoading || checkedToday}
-            onClick={doCheckin}
-          >
-            {checkedToday
-              ? "เช็คชื่อแล้ววันนี้"
-              : checkinLoading
-              ? "กำลังเช็คชื่อ..."
-              : "เช็คชื่อวันนี้"}
-          </button>
-          <div className="mt-3 text-xs text-slate-400">
-            เช็คชื่อได้วันละ 1 ครั้ง
-          </div>
-        </div>
+        {/* Attendance Card Removed as per user request (Admin handles attendance) */}
 
         <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5">
           <SectionHeader icon={Package} title="เบิกของ" subtitle="Withdrawal" />
@@ -514,16 +465,6 @@ export default function SelfServicePage() {
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="group cursor-pointer rounded-xl border border-slate-800 bg-slate-950/60 p-6 transition-all hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/5">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-500/10 transition-colors group-hover:bg-emerald-500/20">
-            <ClipboardCheck className="h-6 w-6 text-emerald-200" />
-          </div>
-          <h3 className="mb-2 font-semibold text-slate-100">เช็คชื่อวันนี้</h3>
-          <p className="text-sm text-slate-400">
-            กดเช็คชื่อเพื่อบันทึกการเข้าร่วมของวันนี้
-          </p>
-        </div>
-
         <div className="group cursor-pointer rounded-xl border border-slate-800 bg-slate-950/60 p-6 transition-all hover:border-amber-500/30 hover:shadow-lg hover:shadow-amber-500/5">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-amber-500/10 transition-colors group-hover:bg-amber-500/20">
             <Package className="h-6 w-6 text-amber-200" />
