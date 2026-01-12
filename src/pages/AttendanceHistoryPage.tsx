@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
 import {
-  UserCheck,
   ChevronLeft,
   ChevronRight,
   Search,
@@ -9,7 +8,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
-import { getUser } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -55,8 +53,7 @@ const itemVariants = {
 };
 
 export default function AttendanceHistoryPage() {
-  const user = getUser();
-  const isAdmin = user?.role === "ADMIN";
+  // User is available via getUser() if needed in the future
 
   // States
   const [logs, setLogs] = useState<AttendanceLog[]>([]);
