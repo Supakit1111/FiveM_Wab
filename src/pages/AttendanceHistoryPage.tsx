@@ -8,7 +8,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
-import { getUser } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -54,8 +53,7 @@ const itemVariants = {
 };
 
 export default function AttendanceHistoryPage() {
-  // Note: getUser() is available if needed for future role-based features
-  void getUser();
+  // Note: getUser() is available if admin-specific logic is needed in the future
 
   // States
   const [logs, setLogs] = useState<AttendanceLog[]>([]);
